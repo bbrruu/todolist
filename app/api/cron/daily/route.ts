@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { createServiceClient } from '@/lib/supabase/service'
 import webpush from 'web-push'
 
 webpush.setVapidDetails(
@@ -22,6 +22,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  const supabase = createServiceClient()
   const today = getTaiwanDateStr()
   const yesterday = getTaiwanDateStr(-1)
 

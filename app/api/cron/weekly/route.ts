@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { createServiceClient } from '@/lib/supabase/service'
 import webpush from 'web-push'
 
 webpush.setVapidDetails(
@@ -30,6 +30,8 @@ export async function GET(request: Request) {
   const daysToMonday = dayOfWeek === 0 ? 1 : 8 - dayOfWeek
   const nextMonday = getTaiwanDate(daysToMonday)
   const nextSunday = getTaiwanDate(daysToMonday + 6)
+
+  const supabase = createServiceClient()
 
   const { data: nextWeekTodos } = await supabase
     .from('todos')

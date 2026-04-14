@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/server'
 
 function getTodayStr() {
   const d = new Date()
@@ -8,6 +8,11 @@ function getTodayStr() {
 }
 
 export async function DELETE() {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const today = getTodayStr()
 
   const { count, error } = await supabase

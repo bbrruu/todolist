@@ -1,6 +1,7 @@
 import { TodoList } from '@/components/TodoList'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { NotificationSetup } from '@/components/NotificationSetup'
+import { UserMenu } from '@/components/UserMenu'
 import { BookCheck } from 'lucide-react'
 
 export default function Home() {
@@ -21,6 +22,7 @@ export default function Home() {
           <div className="flex items-center gap-1">
             <NotificationSetup />
             <ThemeToggle />
+            <UserMenu />
           </div>
         </div>
 
