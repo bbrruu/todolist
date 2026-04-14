@@ -73,13 +73,13 @@ export function FilterBar({
       </div>
 
       {/* 第一排：狀態（均分滿版） */}
-      <div className="flex gap-1">
+      <div className="flex gap-1.5">
         {STATUS_ITEMS.map(({ value, label }) => (
           <Button
             key={value}
             size="sm"
             variant={statusFilter === value ? 'default' : 'outline'}
-            className="flex-1 h-7 px-0 text-xs rounded-lg"
+            className="flex-1 h-9 px-0 text-xs rounded-xl"
             onClick={() => onStatusChange(value)}
           >
             {label}
@@ -88,20 +88,20 @@ export function FilterBar({
       </div>
 
       {/* 第二排：優先度（均分）＋ 排序下拉 */}
-      <div className="flex gap-1">
+      <div className="flex gap-1.5">
         {PRIORITY_ITEMS.map(({ value, label }) => (
           <Button
             key={value}
             size="sm"
             variant={priorityFilter === value ? 'default' : 'outline'}
-            className="flex-1 h-7 px-0 text-xs rounded-lg"
+            className="flex-1 h-9 px-0 text-xs rounded-xl"
             onClick={() => onPriorityChange(value)}
           >
             {label}
           </Button>
         ))}
         <Select value={sortOption} onValueChange={(v) => onSortChange(v as SortOption)}>
-          <SelectTrigger className="h-7 text-xs w-20 flex-shrink-0 rounded-lg">
+          <SelectTrigger className="h-9 text-xs w-20 flex-shrink-0 rounded-xl">
             <SelectValue>{SORT_LABELS[sortOption]}</SelectValue>
           </SelectTrigger>
           <SelectContent>

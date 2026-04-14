@@ -6,9 +6,9 @@ import { BookCheck } from 'lucide-react'
 export default function Home() {
   return (
     <main className="min-h-screen bg-background">
-      <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-12">
         {/* Header */}
-        <div className="mb-7 flex items-center justify-between">
+        <div className="mb-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl bg-primary flex items-center justify-center shadow-sm">
               <BookCheck size={22} className="text-primary-foreground" />

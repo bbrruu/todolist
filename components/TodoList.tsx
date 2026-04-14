@@ -110,60 +110,60 @@ export function TodoList() {
   const doneCount = todos.filter(t => t.status === 'done').length
 
   return (
-    <div className="space-y-5">
-      {/* Top bar */}
-      <div className="flex items-start gap-3">
-        <div className="flex-1">
-          <FilterBar
-            statusFilter={statusFilter}
-            priorityFilter={priorityFilter}
-            sortOption={sortOption}
-            onStatusChange={(s) => { setStatusFilter(s); setSelectedDate(null) }}
-            onPriorityChange={(p) => { setPriorityFilter(p); setSelectedDate(null) }}
-            onSortChange={setSortOption}
-            totalCount={todos.length}
-            doneCount={doneCount}
-          />
-        </div>
-        <div className="flex gap-1 flex-shrink-0">
-          {/* View toggle */}
+    <div className="space-y-4">
+      {/* 操作列：視圖切換 + 清除 + 新增（全寬，不跟篩選列搶空間） */}
+      <div className="flex items-center gap-2">
+        <div className="flex gap-1.5">
           <Button
             variant={view === 'list' ? 'default' : 'outline'}
             size="icon"
-            className="h-9 w-9 rounded-xl"
+            className="h-10 w-10 rounded-xl"
             onClick={() => { setView('list'); setSelectedDate(null) }}
             title="列表視圖"
           >
-            <List size={16} />
+            <List size={17} />
           </Button>
           <Button
             variant={view === 'calendar' ? 'default' : 'outline'}
             size="icon"
-            className="h-9 w-9 rounded-xl"
+            className="h-10 w-10 rounded-xl"
             onClick={() => setView('calendar')}
             title="日曆視圖"
           >
-            <CalendarDays size={16} />
+            <CalendarDays size={17} />
           </Button>
-          {/* Clear past */}
           <Button
             variant="outline"
             size="icon"
-            className="h-9 w-9 rounded-xl text-muted-foreground hover:text-destructive hover:border-destructive"
+            className="h-10 w-10 rounded-xl text-muted-foreground hover:text-destructive hover:border-destructive"
             onClick={handleClearPast}
             title="清除今天以前的事項"
           >
-            <Trash2 size={16} />
-          </Button>
-          {/* Add button */}
-          <Button
-            onClick={() => { setEditTodo(null); setFormOpen(true) }}
-            className="h-9 gap-1.5 rounded-xl px-3"
-          >
-            <Plus size={16} />
-            新增
+            <Trash2 size={17} />
           </Button>
         </div>
+        {/* 新增按鈕：佔滿剩餘寬度 */}
+        <Button
+          onClick={() => { setEditTodo(null); setFormOpen(true) }}
+          className="flex-1 h-10 gap-2 rounded-xl text-sm"
+        >
+          <Plus size={17} />
+          新增事項
+        </Button>
+      </div>
+
+      {/* 篩選列：全寬獨立一排 */}
+      <div>
+        <FilterBar
+          statusFilter={statusFilter}
+          priorityFilter={priorityFilter}
+          sortOption={sortOption}
+          onStatusChange={(s) => { setStatusFilter(s); setSelectedDate(null) }}
+          onPriorityChange={(p) => { setPriorityFilter(p); setSelectedDate(null) }}
+          onSortChange={setSortOption}
+          totalCount={todos.length}
+          doneCount={doneCount}
+        />
       </div>
 
       {/* Calendar view */}
