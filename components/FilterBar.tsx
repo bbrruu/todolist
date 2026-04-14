@@ -24,25 +24,25 @@ interface FilterBarProps {
   doneCount: number
 }
 
-const STATUS_LABELS: Record<StatusFilter, string> = {
-  all: '全部',
-  pending: '待辦',
-  in_progress: '進行中',
-  done: '完成',
-}
+const STATUS_ITEMS: { value: StatusFilter; label: string }[] = [
+  { value: 'all',        label: '全部'   },
+  { value: 'pending',    label: '待辦'   },
+  { value: 'in_progress',label: '進行中' },
+  { value: 'done',       label: '完成'   },
+]
 
-const PRIORITY_LABELS: Record<PriorityFilter, string> = {
-  all: '所有',
-  high: '🔴 高',
-  medium: '🟡 中',
-  low: '🟢 低',
-}
+const PRIORITY_ITEMS: { value: PriorityFilter; label: string }[] = [
+  { value: 'all',    label: '全部' },
+  { value: 'high',   label: '🔴 高' },
+  { value: 'medium', label: '🟡 中' },
+  { value: 'low',    label: '🟢 低' },
+]
 
 const SORT_LABELS: Record<SortOption, string> = {
-  created_desc: '最新',
-  created_asc: '最舊',
-  due_date_asc: '到期日',
-  priority: '優先度',
+  created_desc:  '最新',
+  created_asc:   '最舊',
+  due_date_asc:  '到期日',
+  priority:      '優先度',
 }
 
 export function FilterBar({
@@ -58,7 +58,7 @@ export function FilterBar({
   const progress = totalCount > 0 ? (doneCount / totalCount) * 100 : 0
 
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-2">
       {/* Progress bar */}
       <div className="flex items-center gap-3">
         <div className="flex-1 bg-muted rounded-full h-1.5 overflow-hidden">
@@ -72,55 +72,45 @@ export function FilterBar({
         </span>
       </div>
 
-      {/* 單行捲動 filter bar */}
-      <div
-        className="flex items-center gap-1.5 overflow-x-auto"
-        style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
-      >
-        {/* Status pills */}
-        {(Object.keys(STATUS_LABELS) as StatusFilter[]).map((s) => (
+      {/* 第一排：狀態（均分滿版） */}
+      <div className="flex gap-1">
+        {STATUS_ITEMS.map(({ value, label }) => (
           <Button
-            key={s}
+            key={value}
             size="sm"
-            variant={statusFilter === s ? 'default' : 'outline'}
-            className="h-7 px-3 text-xs rounded-full flex-shrink-0"
-            onClick={() => onStatusChange(s)}
+            variant={statusFilter === value ? 'default' : 'outline'}
+            className="flex-1 h-7 px-0 text-xs rounded-lg"
+            onClick={() => onStatusChange(value)}
           >
-            {STATUS_LABELS[s]}
+            {label}
           </Button>
         ))}
+      </div>
 
-        <div className="w-px h-4 bg-border mx-0.5 flex-shrink-0" />
-
-        {/* Priority pills */}
-        {(Object.keys(PRIORITY_LABELS) as PriorityFilter[]).map((p) => (
+      {/* 第二排：優先度（均分）＋ 排序下拉 */}
+      <div className="flex gap-1">
+        {PRIORITY_ITEMS.map(({ value, label }) => (
           <Button
-            key={p}
+            key={value}
             size="sm"
-            variant={priorityFilter === p ? 'default' : 'outline'}
-            className="h-7 px-3 text-xs rounded-full flex-shrink-0"
-            onClick={() => onPriorityChange(p)}
+            variant={priorityFilter === value ? 'default' : 'outline'}
+            className="flex-1 h-7 px-0 text-xs rounded-lg"
+            onClick={() => onPriorityChange(value)}
           >
-            {PRIORITY_LABELS[p]}
+            {label}
           </Button>
         ))}
-
-        <div className="w-px h-4 bg-border mx-0.5 flex-shrink-0" />
-
-        {/* Sort dropdown */}
-        <div className="flex-shrink-0">
-          <Select value={sortOption} onValueChange={(v) => onSortChange(v as SortOption)}>
-            <SelectTrigger className="h-7 text-xs w-24 rounded-full">
-              <SelectValue>{SORT_LABELS[sortOption]}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="created_desc">最新優先</SelectItem>
-              <SelectItem value="created_asc">最舊優先</SelectItem>
-              <SelectItem value="due_date_asc">到期日</SelectItem>
-              <SelectItem value="priority">優先度</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <Select value={sortOption} onValueChange={(v) => onSortChange(v as SortOption)}>
+          <SelectTrigger className="h-7 text-xs w-20 flex-shrink-0 rounded-lg">
+            <SelectValue>{SORT_LABELS[sortOption]}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="created_desc">最新優先</SelectItem>
+            <SelectItem value="created_asc">最舊優先</SelectItem>
+            <SelectItem value="due_date_asc">到期日</SelectItem>
+            <SelectItem value="priority">優先度</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   )
