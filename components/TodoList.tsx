@@ -7,7 +7,7 @@ import { TodoForm } from './TodoForm'
 import { FilterBar, StatusFilter, PriorityFilter, SortOption } from './FilterBar'
 import { CalendarView } from './CalendarView'
 import { Button } from '@/components/ui/button'
-import { Plus, Loader2, List, CalendarDays } from 'lucide-react'
+import { Plus, Loader2, List, CalendarDays, Trash2 } from 'lucide-react'
 
 const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 }
 
@@ -64,6 +64,15 @@ export function TodoList() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
     })
+    if (res.ok) await fetchTodos()
+  }
+
+  const handleClearPast = async () => {
+    const today = new Date().toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-').replace(/(\d+)-(\d+)-(\d+)/, '$1-$2-$3')
+    const pastCount = todos.filter(t => t.due_date && t.due_date < new Date().toISOString().slice(0, 10)).length
+    if (pastCount === 0) { alert('沒有今天以前的事項需要清除'); return }
+    if (!confirm(`確定要刪除今天（${new Date().toISOString().slice(0, 10)}）以前的 ${pastCount} 筆事項嗎？`)) return
+    const res = await fetch('/api/todos/clear-past', { method: 'DELETE' })
     if (res.ok) await fetchTodos()
   }
 
@@ -135,6 +144,16 @@ export function TodoList() {
             title="日曆視圖"
           >
             <CalendarDays size={16} />
+          </Button>
+          {/* Clear past */}
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-9 w-9 rounded-xl text-muted-foreground hover:text-destructive hover:border-destructive"
+            onClick={handleClearPast}
+            title="清除今天以前的事項"
+          >
+            <Trash2 size={16} />
           </Button>
           {/* Add button */}
           <Button
