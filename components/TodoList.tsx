@@ -18,7 +18,7 @@ export function TodoList() {
   const [editTodo, setEditTodo] = useState<Todo | null>(null)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>('all')
-  const [sortOption, setSortOption] = useState<SortOption>('created_desc')
+  const [sortOption, setSortOption] = useState<SortOption>('due_date_asc')
   const [view, setView] = useState<'list' | 'calendar'>('list')
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
 
@@ -95,15 +95,23 @@ export function TodoList() {
   // Sort
   filtered = [...filtered].sort((a, b) => {
     switch (sortOption) {
-      case 'created_asc': return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-      case 'due_date_asc': {
-        if (!a.due_date && !b.due_date) return 0
+      case 'created_asc':
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      case 'created_desc':
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      case 'priority':
+        return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]
+      case 'due_date_asc':
+      default: {
+        // 沒有日期的排到最底
+        if (!a.due_date && !b.due_date) return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]
         if (!a.due_date) return 1
         if (!b.due_date) return -1
-        return new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
+        const dateDiff = new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
+        // 同一天：按優先度排
+        if (dateDiff === 0) return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]
+        return dateDiff
       }
-      case 'priority': return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]
-      default: return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     }
   })
 
