@@ -6,6 +6,10 @@ self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()))
 // Handle push notifications
 self.addEventListener('push', (e) => {
   const data = e.data?.json() ?? {}
+
+  // Discard stale notifications queued while offline (older than 20 hours)
+  if (data.sentAt && Date.now() - data.sentAt > 20 * 60 * 60 * 1000) return
+
   const title = data.title ?? '我的事項'
   const options = {
     body: data.body ?? '',

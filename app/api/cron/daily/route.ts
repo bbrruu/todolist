@@ -57,6 +57,7 @@ export async function GET(request: Request) {
     body: topItems + (todayTodos.length > 5 ? `\n...等 ${todayTodos.length} 件` : ''),
     tag: 'daily',
     url: '/',
+    sentAt: Date.now(),
   })
 
   const results = await Promise.allSettled(
@@ -68,6 +69,16 @@ export async function GET(request: Request) {
     )
   )
 
+  // Remove expired subscriptions (410 Gone)
+  const expiredEndpoints = results
+    .map((r, i) => ({ r, sub: subs[i] }))
+    .filter(({ r }) => r.status === 'rejected' && (r as PromiseRejectedResult).reason?.statusCode === 410)
+    .map(({ sub }) => sub.endpoint)
+
+  if (expiredEndpoints.length > 0) {
+    await supabase.from('push_subscriptions').delete().in('endpoint', expiredEndpoints)
+  }
+
   const sent = results.filter(r => r.status === 'fulfilled').length
-  return NextResponse.json({ message: `已發送 ${sent}/${subs.length} 則通知`, rolled: yesterday })
+  return NextResponse.json({ message: `已發送 ${sent}/${subs.length} 則通知`, removed: expiredEndpoints.length })
 }
