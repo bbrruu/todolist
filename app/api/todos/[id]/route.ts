@@ -17,6 +17,7 @@ export async function PATCH(
   if (body.title !== undefined) updateData.title = body.title
   if (body.description !== undefined) updateData.description = body.description || null
   if (body.due_date !== undefined) updateData.due_date = body.due_date || null
+  if (body.due_date_end !== undefined) updateData.due_date_end = body.due_date_end || null
   if (body.due_time !== undefined) updateData.due_time = body.due_time || null
   if (body.priority !== undefined) updateData.priority = body.priority
   if (body.status !== undefined) updateData.status = body.status

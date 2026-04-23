@@ -10,7 +10,7 @@ export async function POST(request: Request) {
   const sub = await request.json()
 
   const { error } = await supabase.from('push_subscriptions').upsert(
-    { endpoint: sub.endpoint, keys: sub.keys },
+    { endpoint: sub.endpoint, keys: sub.keys, user_id: user.id },
     { onConflict: 'endpoint' }
   )
 

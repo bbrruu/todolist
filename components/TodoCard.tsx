@@ -97,7 +97,9 @@ export function TodoCard({ todo, onEdit, onDelete, onStatusChange }: TodoCardPro
             {todo.due_date && (
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Calendar size={11} />
-                {formatDate(todo.due_date)}
+                {todo.due_date_end && todo.due_date_end !== todo.due_date
+                  ? `${formatDate(todo.due_date)} - ${formatDate(todo.due_date_end)}`
+                  : formatDate(todo.due_date)}
               </span>
             )}
             {todo.due_time && (

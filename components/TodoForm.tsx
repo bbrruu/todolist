@@ -26,6 +26,7 @@ const defaultForm: TodoFormData = {
   title: '',
   description: '',
   due_date: '',
+  due_date_end: '',
   due_time: '',
   priority: 'medium',
   status: 'pending',
@@ -43,6 +44,7 @@ export function TodoForm({ open, onClose, onSubmit, editTodo }: TodoFormProps) {
           title: editTodo.title,
           description: editTodo.description || '',
           due_date: editTodo.due_date || '',
+          due_date_end: editTodo.due_date_end || '',
           due_time: editTodo.due_time ? editTodo.due_time.slice(0, 5) : '',
           priority: editTodo.priority,
           status: editTodo.status,
@@ -64,6 +66,15 @@ export function TodoForm({ open, onClose, onSubmit, editTodo }: TodoFormProps) {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleDueDateChange = (value: string) => {
+    setForm(prev => ({
+      ...prev,
+      due_date: value,
+      // Clear end date if it's before the new start date, or if start date is cleared
+      due_date_end: !value || (prev.due_date_end && prev.due_date_end < value) ? '' : prev.due_date_end,
+    }))
   }
 
   return (
@@ -105,29 +116,46 @@ export function TodoForm({ open, onClose, onSubmit, editTodo }: TodoFormProps) {
             />
           </div>
 
-          {/* Date + Time */}
+          {/* Date range */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="due_date">日期</Label>
+              <Label htmlFor="due_date">開始日期</Label>
               <Input
                 id="due_date"
                 type="date"
                 value={form.due_date}
-                onChange={(e) => setForm({ ...form, due_date: e.target.value })}
+                onChange={(e) => handleDueDateChange(e.target.value)}
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="due_time">
-                時間
+              <Label htmlFor="due_date_end">
+                結束日期
                 <span className="text-muted-foreground font-normal ml-1 text-xs">（可選）</span>
               </Label>
               <Input
-                id="due_time"
-                type="time"
-                value={form.due_time}
-                onChange={(e) => setForm({ ...form, due_time: e.target.value })}
+                id="due_date_end"
+                type="date"
+                value={form.due_date_end}
+                min={form.due_date || undefined}
+                disabled={!form.due_date}
+                onChange={(e) => setForm({ ...form, due_date_end: e.target.value })}
               />
             </div>
+          </div>
+
+          {/* Time */}
+          <div className="space-y-1.5">
+            <Label htmlFor="due_time">
+              時間
+              <span className="text-muted-foreground font-normal ml-1 text-xs">（可選）</span>
+            </Label>
+            <Input
+              id="due_time"
+              type="time"
+              value={form.due_time}
+              onChange={(e) => setForm({ ...form, due_time: e.target.value })}
+              className="w-1/2"
+            />
           </div>
 
           {/* Priority + Status */}

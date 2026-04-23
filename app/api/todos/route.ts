@@ -31,6 +31,7 @@ export async function POST(request: Request) {
       title: body.title,
       description: body.description || null,
       due_date: body.due_date || null,
+      due_date_end: body.due_date_end || null,
       due_time: body.due_time || null,
       priority: body.priority || 'medium',
       status: body.status || 'pending',

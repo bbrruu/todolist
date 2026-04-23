@@ -86,7 +86,10 @@ export function TodoList() {
   // Filter
   let filtered = todos
   if (selectedDate) {
-    filtered = filtered.filter(t => t.due_date === selectedDate)
+    filtered = filtered.filter(t =>
+      t.due_date === selectedDate ||
+      (t.due_date && t.due_date_end && t.due_date <= selectedDate && t.due_date_end >= selectedDate)
+    )
   } else {
     if (statusFilter !== 'all') filtered = filtered.filter(t => t.status === statusFilter)
     if (priorityFilter !== 'all') filtered = filtered.filter(t => t.priority === priorityFilter)
