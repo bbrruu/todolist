@@ -12,20 +12,28 @@ function urlBase64ToUint8Array(base64String: string) {
 }
 
 export function NotificationSetup() {
-  const [status, setStatus] = useState<'unsupported' | 'default' | 'granted' | 'denied' | 'loading'>('loading')
+  const [permission, setPermission] = useState<'unsupported' | 'default' | 'granted' | 'denied' | 'loading'>('loading')
+  const [subscribed, setSubscribed] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-      setStatus('unsupported')
-    } else {
-      setStatus(Notification.permission as 'default' | 'granted' | 'denied')
+      setPermission('unsupported')
+      return
     }
+    setPermission(Notification.permission as 'default' | 'granted' | 'denied')
+
+    // Check if there's an active push subscription in the browser
+    navigator.serviceWorker.ready.then(reg =>
+      reg.pushManager.getSubscription().then(sub => setSubscribed(!!sub))
+    )
   }, [])
 
   const subscribe = async () => {
+    setLoading(true)
     try {
-      const permission = await Notification.requestPermission()
-      if (permission !== 'granted') { setStatus('denied'); return }
+      const perm = await Notification.requestPermission()
+      if (perm !== 'granted') { setPermission('denied'); return }
 
       const reg = await navigator.serviceWorker.ready
       const existing = await reg.pushManager.getSubscription()
@@ -33,9 +41,7 @@ export function NotificationSetup() {
 
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(
-          process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
-        ),
+        applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!),
       })
 
       await fetch('/api/push/subscribe', {
@@ -43,20 +49,49 @@ export function NotificationSetup() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(sub),
       })
-      setStatus('granted')
+      setPermission('granted')
+      setSubscribed(true)
     } catch {
-      setStatus('denied')
+      setPermission('denied')
+    } finally {
+      setLoading(false)
     }
   }
 
-  if (status === 'loading' || status === 'unsupported') return null
+  const unsubscribe = async () => {
+    setLoading(true)
+    try {
+      const reg = await navigator.serviceWorker.ready
+      const sub = await reg.pushManager.getSubscription()
+      if (sub) {
+        await fetch('/api/push/subscribe', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ endpoint: sub.endpoint }),
+        })
+        await sub.unsubscribe()
+      }
+      setSubscribed(false)
+    } finally {
+      setLoading(false)
+    }
+  }
 
-  if (status === 'granted') {
+  if (permission === 'loading' || permission === 'unsupported') return null
+
+  if (permission === 'granted' && subscribed) {
     return (
-      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-7 gap-1.5 text-xs text-muted-foreground hover:text-foreground rounded-lg"
+        onClick={unsubscribe}
+        disabled={loading}
+        title="關閉推播通知"
+      >
         <BellRing size={13} className="text-primary" />
         通知已開啟
-      </div>
+      </Button>
     )
   }
 
@@ -66,10 +101,11 @@ export function NotificationSetup() {
       size="sm"
       className="h-7 gap-1.5 text-xs text-muted-foreground hover:text-foreground rounded-lg"
       onClick={subscribe}
-      title="開啟推播通知"
+      disabled={loading || permission === 'denied'}
+      title={permission === 'denied' ? '請在瀏覽器設定中允許通知' : '開啟推播通知'}
     >
-      {status === 'denied' ? <BellOff size={13} /> : <Bell size={13} />}
-      {status === 'denied' ? '通知已封鎖' : '開啟通知'}
+      {permission === 'denied' ? <BellOff size={13} /> : <Bell size={13} />}
+      {permission === 'denied' ? '通知已封鎖' : '開啟通知'}
     </Button>
   )
 }
